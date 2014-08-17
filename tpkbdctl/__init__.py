@@ -87,7 +87,7 @@ class HidrawDeviceForCompact(object):
         self._sensitivity = 5
         self._fn_lock = False
         self._native_fn = False
-        self._preferred_scrolling = False
+        self._hardware_wheel_emulation = False
 
     def __repr__(self):
         return '<HidrawDeviceForCompact "%s">' % self.hidraw_dev
@@ -116,15 +116,15 @@ class HidrawDeviceForCompact(object):
         native_fn = 0x03 if value else 0x00
         self._write_settings(pack('BBB', 0x13, 0x01, native_fn))
 
-    def set_preferred_scrolling(self, value):
-        self._preferred_scrolling = value
-        preferred_scrolling = 0x01 if value else 0x00
-        self._write_settings(pack('BBB', 0x13, 0x09, preferred_scrolling))
+    def set_hardware_wheel_emulation(self, value):
+        self._hardware_wheel_emulation = value
+        hardware_wheel_emulation = 0x00 if value else 0x01
+        self._write_settings(pack('BBB', 0x13, 0x09, hardware_wheel_emulation))
 
     sensitivity = property(get_attr, set_sensitivity)
     fn_lock = property(get_attr, set_fn_lock)
     native_fn = property(get_attr, set_native_fn)
-    preferred_scrolling = property(get_attr, set_preferred_scrolling)
+    hardware_wheel_emulation = property(get_attr, set_hardware_wheel_emulation)
 
 
 

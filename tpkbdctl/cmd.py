@@ -34,6 +34,8 @@ def main():
                  help='Enable dragging? (y/n)')
     p.add_option('-r', '--release-to-select', type='string', action='store', dest='release_to_select', metavar='?',
                  help='Enable release-to-select? (y/n)')
+    p.add_option('-w', '--hardware-wheel-emulation', type='string', action='store', dest='hardware_wheel_emulation', metavar='?',
+                 help='Enable hardware-wheel-emulation? (y/n)')
 
 
     (options, args) = p.parse_args(sys.argv)
@@ -100,4 +102,8 @@ def main():
     if options.release_to_select:
         v = parse_choice(options.release_to_select)
         for d in tpkbdctl.devices: d.release_to_select = v
+
+    if options.hardware_wheel_emulation:
+        v = parse_choice(options.hardware_wheel_emulation)
+        for d in tpkbdctl.devices: d.hardware_wheel_emulation = v
 
