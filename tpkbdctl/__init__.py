@@ -104,7 +104,8 @@ class HidrawDeviceForCompact(object):
 
     def set_sensitivity(self, value):
         self._sensitivity = value
-        self._write_settings(pack('BBB', 0x13, 0x02, value))
+        sensitivity = (value / 31) + 1
+        self._write_settings(pack('BBB', 0x13, 0x02, sensitivity))
 
     def set_fn_lock(self, value):
         self._fn_lock = value
