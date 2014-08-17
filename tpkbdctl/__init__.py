@@ -95,32 +95,31 @@ class HidrawDeviceForCompact(object):
     def __str__(self):
         return 'hidraw:%s (write-only)' % self.hidraw_dev
 
-    def _write_settings(self):
-        fn_lock = 0x01 if self._fn_lock else 0x00
-        preferred_scrolling = 0x01 if self._preferred_scrolling else 0x00
+    def _write_settings(self, data):
         with open(self.hidraw_dev, 'w') as fd:
-            ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x02, self._sensitivity))
-            ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x05, fn_lock))
-            #ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x09, preferred_scrolling))
+            ioctl(fd, 0xc0054806, data)
 
     def get_attr(self):
         raise RuntimeError('Cannot get, only set')
 
     def set_sensitivity(self, value):
         self._sensitivity = value
-        self._write_settings()
+        self._write_settings(pack('BBB', 0x13, 0x02, value))
 
     def set_fn_lock(self, value):
         self._fn_lock = value
-        self._write_settings()
+        fn_lock = 0x01 if value else 0x00
+        self._write_settings(pack('BBB', 0x13, 0x05, fn_lock))
 
     def set_native_fn(self, value):
         self._native_fn = value
-        self._write_settings()
+        native_fn = 0x03 if value else 0x00
+        self._write_settings(pack('BBB', 0x13, 0x01, native_fn))
 
     def set_preferred_scrolling(self, value):
         self._preferred_scrolling = value
-        self._write_settings()
+        preferred_scrolling = 0x01 if value else 0x00
+        self._write_settings(pack('BBB', 0x13, 0x09, preferred_scrolling))
 
     sensitivity = property(get_attr, set_sensitivity)
     fn_lock = property(get_attr, set_fn_lock)
