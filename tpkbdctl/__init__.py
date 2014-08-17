@@ -257,7 +257,7 @@ class TpkbdCtl(object):
             self.devices.append(TpkbdDevice(hid_path))
         else:
             hidraw_dev = join_path(self.__dev_path__, hidraw_name)
-            if int(m.group(1), 16) == 6009:
+            if int(m.group(1), 16) == 0x6009:
                 device = HidrawDevice(hidraw_dev)
             else:
                 device = HidrawDeviceForCompact(hidraw_dev)
