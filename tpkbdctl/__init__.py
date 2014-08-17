@@ -76,6 +76,59 @@ class HidrawDevice(object):
 
 
 
+class HidrawDeviceForCompact(object):
+
+    can_get = False
+
+    def __init__(self, hidraw_dev):
+        #if not access(hidraw_dev, W_OK):
+        #    raise RuntimeError('No write access. Maybe run as root?')
+        self.hidraw_dev = hidraw_dev
+        self._sensitivity = 5
+        self._fn_lock = False
+        self._native_fn = False
+        self._preferred_scrolling = False
+
+    def __repr__(self):
+        return '<HidrawDeviceForCompact "%s">' % self.hidraw_dev
+
+    def __str__(self):
+        return 'hidraw:%s (write-only)' % self.hidraw_dev
+
+    def _write_settings(self):
+        fn_lock = 0x01 if self._fn_lock else 0x00
+        preferred_scrolling = 0x01 if self._preferred_scrolling else 0x00
+        with open(self.hidraw_dev, 'w') as fd:
+            ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x02, self._sensitivity))
+            ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x05, fn_lock))
+            #ioctl(fd, 0xc0054806, pack('BBB', 0x13, 0x09, preferred_scrolling))
+
+    def get_attr(self):
+        raise RuntimeError('Cannot get, only set')
+
+    def set_sensitivity(self, value):
+        self._sensitivity = value
+        self._write_settings()
+
+    def set_fn_lock(self, value):
+        self._fn_lock = value
+        self._write_settings()
+
+    def set_native_fn(self, value):
+        self._native_fn = value
+        self._write_settings()
+
+    def set_preferred_scrolling(self, value):
+        self._preferred_scrolling = value
+        self._write_settings()
+
+    sensitivity = property(get_attr, set_sensitivity)
+    fn_lock = property(get_attr, set_fn_lock)
+    native_fn = property(get_attr, set_native_fn)
+    preferred_scrolling = property(get_attr, set_preferred_scrolling)
+
+
+
 class TpkbdDevice(object):
 
     can_get = True
@@ -184,7 +237,8 @@ class TpkbdCtl(object):
 
 
     def probe_device(self, dev):
-        if not re.match(r'^....:17EF:6009\.....$', dev):
+        m = re.match(r'^....:17EF:(6009|6047)\.....$', dev)
+        if not m:
             return False
 
         hid_path = realpath(join_path(self.__hid_path__, dev))
@@ -203,7 +257,11 @@ class TpkbdCtl(object):
             self.devices.append(TpkbdDevice(hid_path))
         else:
             hidraw_dev = join_path(self.__dev_path__, hidraw_name)
-            self.devices.append(HidrawDevice(hidraw_dev))
+            if int(m.group(1), 16) == 6009:
+                device = HidrawDevice(hidraw_dev)
+            else:
+                device = HidrawDeviceForCompact(hidraw_dev)
+            self.devices.append(device)
         return True
 
 
