@@ -80,10 +80,11 @@ class HidrawDeviceForCompact(object):
 
     can_get = False
 
-    def __init__(self, hidraw_dev):
+    def __init__(self, hidraw_dev, device_id):
         #if not access(hidraw_dev, W_OK):
         #    raise RuntimeError('No write access. Maybe run as root?')
         self.hidraw_dev = hidraw_dev
+        self._device_id = device_id
 
     def __repr__(self):
         return '<HidrawDeviceForCompact "%s">' % self.hidraw_dev
@@ -92,7 +93,8 @@ class HidrawDeviceForCompact(object):
         return 'hidraw:%s (write-only)' % self.hidraw_dev
 
     def _write_settings(self, command, value):
-        data = pack('BBBBBBBBB', 0x13, command, value, 0, 0, 0, 0, 0, 0)
+        magic_number = 0x13 if self._device_id == 0x6047 else 0x18
+        data = pack('BBBBBBBBB', magic_number, command, value, 0, 0, 0, 0, 0, 0)
         with open(self.hidraw_dev, 'w') as fd:
             ioctl(fd, 0xc0054806, data)
 
@@ -230,7 +232,7 @@ class TpkbdCtl(object):
 
 
     def probe_device(self, dev):
-        m = re.match(r'^....:17EF:(6009|6047)\.....$', dev)
+        m = re.match(r'^....:17EF:(6009|6047|6048)\.....$', dev)
         if not m:
             return False
 
@@ -250,10 +252,11 @@ class TpkbdCtl(object):
             self.devices.append(TpkbdDevice(hid_path))
         else:
             hidraw_dev = join_path(self.__dev_path__, hidraw_name)
-            if int(m.group(1), 16) == 0x6009:
+            device_id = int(m.group(1), 16)
+            if device_id == 0x6009:
                 device = HidrawDevice(hidraw_dev)
             else:
-                device = HidrawDeviceForCompact(hidraw_dev)
+                device = HidrawDeviceForCompact(hidraw_dev, device_id)
             self.devices.append(device)
         return True
 
