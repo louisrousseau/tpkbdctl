@@ -95,7 +95,8 @@ class HidrawDeviceForCompact(object):
     def __str__(self):
         return 'hidraw:%s (write-only)' % self.hidraw_dev
 
-    def _write_settings(self, data):
+    def _write_settings(self, command, value):
+        data = pack('BBBBBBBBB', 0x13, command, value, 0, 0, 0, 0, 0, 0)
         with open(self.hidraw_dev, 'w') as fd:
             ioctl(fd, 0xc0054806, data)
 
@@ -105,22 +106,22 @@ class HidrawDeviceForCompact(object):
     def set_sensitivity(self, value):
         self._sensitivity = value
         sensitivity = (value / 31) + 1
-        self._write_settings(pack('BBB', 0x13, 0x02, sensitivity))
+        self._write_settings(0x02, sensitivity)
 
     def set_fn_lock(self, value):
         self._fn_lock = value
         fn_lock = 0x01 if value else 0x00
-        self._write_settings(pack('BBB', 0x13, 0x05, fn_lock))
+        self._write_settings(0x05, fn_lock)
 
     def set_native_fn(self, value):
         self._native_fn = value
         native_fn = 0x03 if value else 0x00
-        self._write_settings(pack('BBB', 0x13, 0x01, native_fn))
+        self._write_settings(0x01, native_fn)
 
     def set_hardware_wheel_emulation(self, value):
         self._hardware_wheel_emulation = value
         hardware_wheel_emulation = 0x00 if value else 0x01
-        self._write_settings(pack('BBB', 0x13, 0x09, hardware_wheel_emulation))
+        self._write_settings(0x09, hardware_wheel_emulation)
 
     sensitivity = property(get_attr, set_sensitivity)
     fn_lock = property(get_attr, set_fn_lock)
