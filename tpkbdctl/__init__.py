@@ -84,10 +84,6 @@ class HidrawDeviceForCompact(object):
         #if not access(hidraw_dev, W_OK):
         #    raise RuntimeError('No write access. Maybe run as root?')
         self.hidraw_dev = hidraw_dev
-        self._sensitivity = 5
-        self._fn_lock = False
-        self._native_fn = False
-        self._hardware_wheel_emulation = False
 
     def __repr__(self):
         return '<HidrawDeviceForCompact "%s">' % self.hidraw_dev
@@ -104,22 +100,18 @@ class HidrawDeviceForCompact(object):
         raise RuntimeError('Cannot get, only set')
 
     def set_sensitivity(self, value):
-        self._sensitivity = value
         sensitivity = (value / 31) + 1
         self._write_settings(0x02, sensitivity)
 
     def set_fn_lock(self, value):
-        self._fn_lock = value
         fn_lock = 0x01 if value else 0x00
         self._write_settings(0x05, fn_lock)
 
     def set_native_fn(self, value):
-        self._native_fn = value
         native_fn = 0x03 if value else 0x00
         self._write_settings(0x01, native_fn)
 
     def set_hardware_wheel_emulation(self, value):
-        self._hardware_wheel_emulation = value
         hardware_wheel_emulation = 0x00 if value else 0x01
         self._write_settings(0x09, hardware_wheel_emulation)
 
