@@ -106,7 +106,7 @@ class HidrawDeviceForCompact(object):
         self._write_settings(0x02, sensitivity)
 
     def set_fn_lock(self, value):
-        fn_lock = 0x01 if value else 0x00
+        fn_lock = 0x00 if value else 0x01
         self._write_settings(0x05, fn_lock)
 
     def set_native_fn(self, value):
