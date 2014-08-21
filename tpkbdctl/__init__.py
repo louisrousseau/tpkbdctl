@@ -94,9 +94,9 @@ class HidrawDeviceForCompact(object):
 
     def _write_settings(self, command, value):
         magic_number = 0x13 if self._device_id == 0x6047 else 0x18
-        data = pack('BBBBBBBBB', magic_number, command, value, 0, 0, 0, 0, 0, 0)
+        data = pack('BBB', magic_number, command, value)
         with open(self.hidraw_dev, 'w') as fd:
-            ioctl(fd, 0xc0054806, data)
+            ioctl(fd, 0xc0034806, data) # HIDIOCSFEATURE(3)
 
     def get_attr(self):
         raise RuntimeError('Cannot get, only set')
