@@ -102,7 +102,7 @@ class HidrawDeviceForCompact(object):
         raise RuntimeError('Cannot get, only set')
 
     def set_sensitivity(self, value):
-        sensitivity = (value / 31) + 1
+        sensitivity = int(value / 31) + 1
         self._write_settings(0x02, sensitivity)
 
     def set_fn_lock(self, value):
