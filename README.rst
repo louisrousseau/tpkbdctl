@@ -97,16 +97,8 @@ used. Place the following code in  ``/etc/udev/rules.d/10-tpkbdctl.rules``.
 
 ::
 
-    SUBSYSTEM=="hid", ATTRS{idVendor}=="17ef", ATTRS{idProduct}=="6009", ACTION=="add", RUN+="/etc/udev/tpkbdctl_runner"
-
-Customize this according to your needs and save it as `/etc/udev/tpkbdctl_runner`.
-Don't forget to make it executable by running ``chmod 755 /etc/udev/tpkbdctl_runner``.
-
-::
-
-    #!/bin/sh
-    
-    /usr/bin/tpkbdctl -d ${DEVPATH} -s 192 # your settings here
+    SUBSYSTEM=="input", ATTRS{idVendor}=="17ef", ATTRS{idProduct}=="6047", ACTION=="add", RUN+="/usr/local/bin/tpkbdctl -s 9"
+In some cases, idProduct shoud be 6009, check using lsusb. Also, SUBSYSTEM may need to be set to "hid" instead of "input. YMMV. Confirm full path to tpkbdctl is correct using which.
 
 See also
 ========
